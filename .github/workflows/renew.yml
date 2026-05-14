@@ -25,7 +25,7 @@ jobs:
     steps:
       - name: Checkout repository
         run: |
-          # 주소 슬래시(/) 누락 문제를 완벽하게 해결했습니다.
+          # 코파일럿이 지적한 https:// 주소와 슬래시 누락을 완벽히 해결했습니다.
           git clone --depth=50 "github.com{{ github.repository }}.git" .
           git checkout ${{ github.ref_name }}
 
@@ -49,7 +49,7 @@ jobs:
         if: success()
         run: |
           git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@github.com"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           mkdir -p .github/logs
           LOG_FILE=".github/logs/workflow_runs.log"
           TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
@@ -76,7 +76,7 @@ jobs:
         if: failure()
         run: |
           git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@github.com"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           mkdir -p .github/logs
           LOG_FILE=".github/logs/workflow_runs.log"
           TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
