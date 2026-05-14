@@ -12,21 +12,20 @@ jobs:
       contents: write
 
     strategy:
-      # 한 계정이 실패해도 다른 계정은 건너뛰지 않고 계속 실행하도록 설정합니다.
       fail-fast: false
       matrix:
         account:
           - id: "account_1"
-            username: "PA_USERNAME_1"
-            password: "PA_PASSWORD_1"
+            username_key: "PA_USERNAME_1"
+            password_key: "PA_PASSWORD_1"
           - id: "account_2"
-            username: "PA_USERNAME_2"
-            password: "PA_PASSWORD_2"
+            username_key: "PA_USERNAME_2"
+            password_key: "PA_PASSWORD_2"
 
     steps:
       - name: Checkout repository
         run: |
-          git clone --depth=50 https://github.com/${{ github.repository }}.git .
+          git clone --depth=50 github.com{{ github.repository }}.git .
           git checkout ${{ github.ref_name }}
 
       - name: Setup Python
@@ -40,17 +39,17 @@ jobs:
           pip3 install requests beautifulsoup4 python-dotenv
 
       - name: Run renewal script (${{ matrix.account.id }})
+        # 스크립트가 요구하는 정확한 이름(PA_USERNAME, PA_PASSWORD)으로 주입합니다.
         env:
-          # GitHub Secrets에서 각각 다른 변수를 매칭하여 가져옵니다.
-          PA_USERNAME: ${{ secrets[matrix.account.username] }}
-          PA_PASSWORD: ${{ secrets[matrix.account.password] }}
+          PA_USERNAME: ${{ secrets[matrix.account.username_key] }}
+          PA_PASSWORD: ${{ secrets[matrix.account.password_key] }}
         run: python3 renew_python_anywhere.py
 
       - name: Keep Alive Workflow (Success)
         if: success()
         run: |
           git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.email "github-actions[bot]@github.com"
           mkdir -p .github/logs
           LOG_FILE=".github/logs/workflow_runs.log"
           TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
@@ -66,11 +65,10 @@ jobs:
           echo "========================================" >> $LOG_FILE
           echo "" >> $LOG_FILE
           
-          # 여러 계정이 동시에 push할 때 충돌을 방지하기 위해 pull을 먼저 수행합니다.
           git pull origin ${{ github.ref_name }} --rebase || true
           git add $LOG_FILE
           git commit -m "log: workflow run SUCCESS for ${{ matrix.account.id }} on $TIMESTAMP" || true
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com{{ github.repository }}.git
           git push origin ${{ github.ref_name }}
           echo "✅ Success logged and committed"
 
@@ -78,7 +76,7 @@ jobs:
         if: failure()
         run: |
           git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.email "github-actions[bot]@github.com"
           mkdir -p .github/logs
           LOG_FILE=".github/logs/workflow_runs.log"
           TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
@@ -98,6 +96,6 @@ jobs:
           git pull origin ${{ github.ref_name }} --rebase || true
           git add $LOG_FILE
           git commit -m "log: workflow run FAILED for ${{ matrix.account.id }} on $TIMESTAMP" || true
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com{{ github.repository }}.git
           git push origin ${{ github.ref_name }}
           echo "❌ Failure logged and committed"
