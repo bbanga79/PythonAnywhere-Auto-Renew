@@ -15,13 +15,13 @@ jobs:
     runs-on: ubuntu-latest
 
     permissions:
-      contents: write
+      contents: read
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 50
+          fetch-depth: 1
 
       - name: Setup Python
         run: |
@@ -39,79 +39,12 @@ jobs:
           PA_PASSWORD: ${{ secrets.PA_PASSWORD_1 }}
         run: python3 renew_python_anywhere.py
 
-      - name: Log Success
-        if: success()
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          mkdir -p .github/logs
-          LOG_FILE=".github/logs/workflow_runs_account_1.log"
-          TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
-
-          {
-            echo "========================================"
-            echo "Workflow Run: $TIMESTAMP"
-            echo "Account: account_1"
-            echo "Status: SUCCESS ✅"
-            echo "Trigger: ${{ github.event_name }}"
-            echo "Repository: ${{ github.repository }}"
-            echo "Branch: ${{ github.ref_name }}"
-            echo "Run ID: ${{ github.run_id }}"
-            echo "Run Number: ${{ github.run_number }}"
-            echo "========================================"
-            echo ""
-          } >> $LOG_FILE
-
-          git add $LOG_FILE
-
-          if git diff --cached --quiet; then
-            echo "No changes to commit"
-          else
-            git commit -m "log: SUCCESS account_1 $TIMESTAMP"
-            git push
-          fi
-
-      - name: Log Failure
-        if: failure()
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          mkdir -p .github/logs
-          LOG_FILE=".github/logs/workflow_runs_account_1.log"
-          TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
-
-          {
-            echo "========================================"
-            echo "Workflow Run: $TIMESTAMP"
-            echo "Account: account_1"
-            echo "Status: FAILED ❌"
-            echo "Trigger: ${{ github.event_name }}"
-            echo "Repository: ${{ github.repository }}"
-            echo "Branch: ${{ github.ref_name }}"
-            echo "Run ID: ${{ github.run_id }}"
-            echo "Run Number: ${{ github.run_number }}"
-            echo "Note: Check GitHub Actions logs for details"
-            echo "========================================"
-            echo ""
-          } >> $LOG_FILE
-
-          git add $LOG_FILE
-
-          if git diff --cached --quiet; then
-            echo "No changes to commit"
-          else
-            git commit -m "log: FAILED account_1 $TIMESTAMP"
-            git push
-          fi
-
   renew_account_2:
     name: Renew Account 2
     runs-on: ubuntu-latest
 
     permissions:
-      contents: write
+      contents: read
 
     needs: renew_account_1
 
@@ -119,7 +52,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 50
+          fetch-depth: 1
 
       - name: Setup Python
         run: |
@@ -136,70 +69,3 @@ jobs:
           PA_USERNAME: ${{ secrets.PA_USERNAME_2 }}
           PA_PASSWORD: ${{ secrets.PA_PASSWORD_2 }}
         run: python3 renew_python_anywhere.py
-
-      - name: Log Success
-        if: success()
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          mkdir -p .github/logs
-          LOG_FILE=".github/logs/workflow_runs_account_2.log"
-          TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
-
-          {
-            echo "========================================"
-            echo "Workflow Run: $TIMESTAMP"
-            echo "Account: account_2"
-            echo "Status: SUCCESS ✅"
-            echo "Trigger: ${{ github.event_name }}"
-            echo "Repository: ${{ github.repository }}"
-            echo "Branch: ${{ github.ref_name }}"
-            echo "Run ID: ${{ github.run_id }}"
-            echo "Run Number: ${{ github.run_number }}"
-            echo "========================================"
-            echo ""
-          } >> $LOG_FILE
-
-          git add $LOG_FILE
-
-          if git diff --cached --quiet; then
-            echo "No changes to commit"
-          else
-            git commit -m "log: SUCCESS account_2 $TIMESTAMP"
-            git push
-          fi
-
-      - name: Log Failure
-        if: failure()
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          mkdir -p .github/logs
-          LOG_FILE=".github/logs/workflow_runs_account_2.log"
-          TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
-
-          {
-            echo "========================================"
-            echo "Workflow Run: $TIMESTAMP"
-            echo "Account: account_2"
-            echo "Status: FAILED ❌"
-            echo "Trigger: ${{ github.event_name }}"
-            echo "Repository: ${{ github.repository }}"
-            echo "Branch: ${{ github.ref_name }}"
-            echo "Run ID: ${{ github.run_id }}"
-            echo "Run Number: ${{ github.run_number }}"
-            echo "Note: Check GitHub Actions logs for details"
-            echo "========================================"
-            echo ""
-          } >> $LOG_FILE
-
-          git add $LOG_FILE
-
-          if git diff --cached --quiet; then
-            echo "No changes to commit"
-          else
-            git commit -m "log: FAILED account_2 $TIMESTAMP"
-            git push
-          fi
