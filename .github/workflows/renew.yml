@@ -69,3 +69,28 @@ jobs:
           PA_USERNAME: ${{ secrets.PA_USERNAME_2 }}
           PA_PASSWORD: ${{ secrets.PA_PASSWORD_2 }}
         run: python3 renew_python_anywhere.py
+
+  renew_account_3:
+      name: Renew Account 3
+      runs-on: ubuntu-latest
+      permissions:
+        contents: read
+      needs: renew_account_2
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v5
+          with:
+            fetch-depth: 1
+        - name: Setup Python
+          run: |
+            echo "Python version:"
+            python3 --version
+        - name: Install dependencies
+          run: |
+            python3 -m pip install --upgrade pip
+            pip3 install requests beautifulsoup4 python-dotenv
+        - name: Run renewal script
+          env:
+            PA_USERNAME: ${{ secrets.PA_USERNAME_3 }}
+            PA_PASSWORD: ${{ secrets.PA_PASSWORD_3 }}
+          run: python3 renew_python_anywhere.py
